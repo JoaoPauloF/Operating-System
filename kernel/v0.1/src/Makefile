@@ -1,4 +1,3 @@
-C = main.c
 CC = gcc
 CFLAGS = -Wall -g -Og
 
