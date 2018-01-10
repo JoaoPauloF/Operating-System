@@ -1,43 +1,43 @@
- 
-global bootstrap_entry, KERNEL_VMA_OFFSET, KERNEL_PMA_OFFSET
-extern kmain
-MB_FLAGS	equ	(1<<0) | (1<<1)
-MB_MAGIC	equ	0x1BADB002
-MB_CHECKSUM	equ	 (0 -(MB_MAGIC + MB_FLAGS))	
+extern _kmain
 
-section .multiboot
-bits 32	
-align 4
-	dd MB_MAGIC
-	dd MB_FLAGS
-	dd MB_CHECKSUM
- 
-KERNEl_PMA_OFFSET 	equ 	0x0000000000100000
-KERNEL_VMA_OFFSET 	equ	0xFFFFFFFF00000000
-%define phys(virt) (virt - KERNEL_VMA_OFFSET)
-section .multiboot
-align 4
-	dd MB_MAGIC
-	dd MB_FLAGS
-	dd MB_CHECKSUM
+section .multiboot_header
+header_start:
+    dd 0xe85250d6                ; magic number (multiboot 2)
+    dd 0                         ; architecture 0 (protected mode i386)
+    dd header_end - header_start ; header length
+    ; checksum
+    dd 0x100000000 - (0xe85250d6 + 0 + (header_end - header_start))
+
+    ; optional multiboot tags
+
+    ; required end tag
+    dw 0    ; type
+    dw 0    ; flags
+    dd 8    ; size
+header_end:
+
+
+
 section .text
-bits 32
-bootstrap_entry:
-	mov esp, phys(kernel_stack_top)
-	push eax
-	push ebx
+
+global _start
+_start:
+    ; print `OK` to screen
+    mov dword [0xb8000], 0x2f4b2f4f	
+	mov esp, stack_top 
+        //call _kmain 	
+	
+hang:
+    hlt
+	cli		
+	jmp hang
+			
+			
+section .data
+stack_bottom:
+    TIMES (16*1024) DB 0 
+stack_top:
+			
 section .bss
-kernel_stack_bottom:
-	resb 16384
-kernel_stack_top:
-kernel_PML4_table:
-	resb 4096
-kernel_PDP_table:
-	resb 4096
-kernel_PD_table:
-	resb 4096
-kernel_page_table:
-	resb 4096
-.hang:
-	jmp .hang
+
 
