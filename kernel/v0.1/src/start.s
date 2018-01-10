@@ -1,7 +1,6 @@
  
 global bootstrap_entry, KERNEL_VMA_OFFSET, KERNEL_PMA_OFFSET
 extern kmain
-; Set up the multiboot header
 MB_FLAGS	equ	(1<<0) | (1<<1)
 MB_MAGIC	equ	0x1BADB002
 MB_CHECKSUM	equ	 (0 -(MB_MAGIC + MB_FLAGS))	
@@ -41,3 +40,4 @@ kernel_page_table:
 	resb 4096
 .hang:
 	jmp .hang
+
